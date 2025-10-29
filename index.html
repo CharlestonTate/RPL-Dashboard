@@ -10,8 +10,8 @@
     <div class="container">
         <!-- Header -->
         <header>
-            <h1>🖨️ 3D Printer Lab Dashboard</h1>
-            <a href="admin.html" class="admin-link">⚙️ Admin</a>
+            <h1>3D Printer Lab Dashboard</h1>
+            <a href="admin.html" class="admin-link">Admin</a>
         </header>
 
         <!-- Main Content -->
@@ -53,9 +53,9 @@
                     <label for="status-select">Status *</label>
                     <select id="status-select" required>
                         <option value="">Select status...</option>
-                        <option value="up">✓ UP (Operational)</option>
-                        <option value="maintenance">⚠ Maintenance</option>
-                        <option value="down">✗ Down</option>
+                        <option value="up">UP (Operational)</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="down">Down</option>
                     </select>
                 </div>
 
@@ -92,6 +92,31 @@
         </div>
     </div>
 
+    <!-- Todo List Modal -->
+    <div id="todo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close todo-close">&times;</span>
+            <h2>Manage Todo List</h2>
+            <div id="modal-todo-printer-name" class="modal-printer-name"></div>
+            
+            <div class="todos-list" id="todos-list">
+                <!-- Todos will be loaded here -->
+            </div>
+            
+            <div class="add-todo-section">
+                <input type="text" class="add-todo-input" id="new-todo-input" placeholder="Add new task...">
+                <button class="btn-add-todo" id="add-todo-btn">Add</button>
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-cancel" id="todo-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confetti.js -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
