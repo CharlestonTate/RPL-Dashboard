@@ -1,4 +1,4 @@
-# 🖨️ 3D Printer Lab Dashboard
+# 3D Printer Lab Dashboard
 
 A real-time, scalable dashboard for managing 3D printer status in your lab, built with Firebase and HTML5.
 
@@ -282,4 +282,5 @@ Free to use and modify for your organization.
 ---
 
 Built with ❤️ for 3D printing labs everywhere
+
 
