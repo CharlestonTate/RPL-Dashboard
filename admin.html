@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - 3D Printer Lab Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header>
+            <h1>⚙️ Admin Panel</h1>
+            <a href="index.html" class="back-link">← Back to Dashboard</a>
+        </header>
+
+        <!-- Current Printers -->
+        <div class="admin-section">
+            <h2>Current Printers</h2>
+            <div id="printers-list" class="printers-list">
+                <div class="loading">Loading printers...</div>
+            </div>
+        </div>
+
+        <!-- Add New Printer -->
+        <div class="admin-section">
+            <h2>Add New Printer</h2>
+            <form id="add-printer-form" class="add-printer-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="printer-id">Printer ID *</label>
+                        <input 
+                            type="text" 
+                            id="printer-id" 
+                            required 
+                            placeholder="e.g., prusa5"
+                            pattern="[a-z0-9\-]+"
+                            title="Only lowercase letters, numbers, and hyphens"
+                        >
+                        <small style="color: var(--color-text-muted);">Lowercase letters, numbers, and hyphens only</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="printer-name">Printer Name *</label>
+                        <input 
+                            type="text" 
+                            id="printer-name" 
+                            required 
+                            placeholder="e.g., Prusa 5"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="printer-order">Display Order *</label>
+                    <input 
+                        type="number" 
+                        id="printer-order" 
+                        required 
+                        min="1"
+                        placeholder="e.g., 10"
+                    >
+                    <small style="color: var(--color-text-muted);">Lower numbers appear first</small>
+                </div>
+
+                <div class="modal-buttons" style="justify-content: flex-start;">
+                    <button type="submit" class="btn btn-submit">Add Printer</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="admin-section" style="border: 2px solid var(--color-down);">
+            <h2>⚠️ Danger Zone</h2>
+            <p style="margin-bottom: 15px; color: var(--color-text-muted);">
+                These actions cannot be undone. Use with caution.
+            </p>
+            <button id="clear-audit-log-btn" class="btn btn-danger">Clear All Audit Logs</button>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <span class="close delete-close">&times;</span>
+            <h2>Delete Printer</h2>
+            <p style="margin: 20px 0; color: var(--color-text-muted);">
+                Are you sure you want to delete <strong id="delete-printer-name"></strong>?
+                This action cannot be undone.
+            </p>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-cancel" id="delete-cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="delete-confirm-btn">Delete Printer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="src/config.js"></script>
+    <script src="src/admin.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // DEVELOPMENT MODE - Open access for testing
+    // WARNING: Replace with authentication before going to production!
+    
+    // Printers collection
+    match /printers/{printerId} {
+      // Anyone can read printer status
+      allow read: if true;
+      
+      // Anyone can update printer status
+      // TODO: Add authentication -> allow write: if request.auth != null;
+      allow write: if true;
+    }
+    
+    // Audit Log collection
+    match /auditLog/{logId} {
+      // Anyone can read audit logs
+      allow read: if true;
+      
+      // Anyone can create new log entries
+      // TODO: Add authentication -> allow create: if request.auth != null;
+      allow create: if true;
+      
+      // Anyone can update (edit) log notes
+      // TODO: Add authentication -> allow update: if request.auth != null;
+      allow update: if true;
+      
+      // Only admins should delete logs (implement after adding auth)
+      // TODO: allow delete: if request.auth.token.admin == true;
+      allow delete: if true;
+    }
+  }
+}
+
+/*
+PRODUCTION SECURITY RULES (with Firebase Authentication):
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Printers collection
+    match /printers/{printerId} {
+      allow read: if true;  // Anyone can view
+      allow create, delete: if isAdmin();  // Only admins can add/remove printers
+      allow update: if isSignedIn();  // Any authenticated user can update status
+    }
+    
+    // Audit Log collection
+    match /auditLog/{logId} {
+      allow read: if true;  // Anyone can view logs
+      allow create: if isSignedIn();  // Authenticated users can create logs
+      allow update: if isSignedIn();  // Authenticated users can edit notes
+      allow delete: if isAdmin();  // Only admins can delete logs
+    }
+    
+    // Users collection (for role management)
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}
+*/
+

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Printer Lab Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🖨️ 3D Printer Lab Dashboard</h1>
+            <a href="admin.html" class="admin-link">⚙️ Admin</a>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Printers Section -->
+            <div class="printers-section">
+                <h2>Printer Status</h2>
+                <div id="printers-grid" class="printers-grid">
+                    <!-- Printers will be dynamically loaded here -->
+                    <div class="loading">Loading printers...</div>
+                </div>
+            </div>
+
+            <!-- Audit Log Section -->
+            <div class="audit-section">
+                <h2>Audit Log</h2>
+                <div id="audit-log" class="audit-log">
+                    <!-- Audit log entries will be dynamically loaded here -->
+                    <div class="loading">Loading audit log...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Update Modal -->
+    <div id="status-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Update Printer Status</h2>
+            <div id="modal-printer-name" class="modal-printer-name"></div>
+            
+            <form id="status-form">
+                <div class="form-group">
+                    <label for="user-name">Your Name *</label>
+                    <input type="text" id="user-name" required placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="status-select">Status *</label>
+                    <select id="status-select" required>
+                        <option value="">Select status...</option>
+                        <option value="up">✓ UP (Operational)</option>
+                        <option value="maintenance">⚠ Maintenance</option>
+                        <option value="down">✗ Down</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes *</label>
+                    <textarea id="notes" rows="4" required placeholder="What's wrong? Who's fixing it? Any details..."></textarea>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-cancel" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-submit">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Notes Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close edit-close">&times;</span>
+            <h2>Edit Notes</h2>
+            
+            <form id="edit-form">
+                <div class="form-group">
+                    <label for="edit-notes">Notes</label>
+                    <textarea id="edit-notes" rows="6" required></textarea>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-cancel" id="edit-cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="src/config.js"></script>
+    <script src="src/main.js"></script>
+</body>
+</html>

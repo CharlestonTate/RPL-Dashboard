@@ -1,0 +1,585 @@
+/* ==================== ROOT VARIABLES ==================== */
+:root {
+    --color-bg: #0f172a;
+    --color-bg-light: #1e293b;
+    --color-bg-lighter: #334155;
+    --color-text: #f1f5f9;
+    --color-text-muted: #94a3b8;
+    --color-border: #475569;
+    
+    --color-up: #10b981;
+    --color-up-light: #d1fae5;
+    --color-maintenance: #f59e0b;
+    --color-maintenance-light: #fef3c7;
+    --color-down: #ef4444;
+    --color-down-light: #fee2e2;
+    
+    --color-primary: #3b82f6;
+    --color-primary-hover: #2563eb;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* ==================== RESET & BASE ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+/* ==================== LAYOUT ==================== */
+.container {
+    max-width: 1800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--color-bg-light);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.admin-link {
+    padding: 10px 20px;
+    background: var(--color-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.admin-link:hover {
+    background: var(--color-primary-hover);
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+/* ==================== PRINTERS SECTION ==================== */
+.printers-section {
+    background: var(--color-bg-light);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.printers-section h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.printers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.printer-card {
+    padding: 20px;
+    background: var(--color-bg-lighter);
+    border-radius: 8px;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.printer-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.printer-card.status-up {
+    border-color: var(--color-up);
+}
+
+.printer-card.status-maintenance {
+    border-color: var(--color-maintenance);
+}
+
+.printer-card.status-down {
+    border-color: var(--color-down);
+}
+
+.printer-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.printer-status {
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.status-up .printer-status {
+    background: var(--color-up);
+    color: white;
+}
+
+.status-maintenance .printer-status {
+    background: var(--color-maintenance);
+    color: white;
+}
+
+.status-down .printer-status {
+    background: var(--color-down);
+    color: white;
+}
+
+.printer-info {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+/* ==================== AUDIT LOG SECTION ==================== */
+.audit-section {
+    background: var(--color-bg-light);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    max-height: calc(100vh - 140px);
+    display: flex;
+    flex-direction: column;
+}
+
+.audit-section h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.audit-log {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.audit-log::-webkit-scrollbar {
+    width: 8px;
+}
+
+.audit-log::-webkit-scrollbar-track {
+    background: var(--color-bg-lighter);
+    border-radius: 4px;
+}
+
+.audit-log::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.log-entry {
+    background: var(--color-bg-lighter);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 4px solid transparent;
+}
+
+.log-entry.status-up {
+    border-left-color: var(--color-up);
+}
+
+.log-entry.status-maintenance {
+    border-left-color: var(--color-maintenance);
+}
+
+.log-entry.status-down {
+    border-left-color: var(--color-down);
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.log-printer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-badge.status-up {
+    background: var(--color-up);
+    color: white;
+}
+
+.status-badge.status-maintenance {
+    background: var(--color-maintenance);
+    color: white;
+}
+
+.status-badge.status-down {
+    background: var(--color-down);
+    color: white;
+}
+
+.log-time {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.log-user {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+}
+
+.log-notes {
+    background: var(--color-bg);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.log-notes.collapsed {
+    max-height: 60px;
+    overflow: hidden;
+    position: relative;
+}
+
+.log-notes.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(transparent, var(--color-bg));
+}
+
+.log-notes.expanded {
+    max-height: none;
+}
+
+.log-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.btn-text:hover {
+    color: var(--color-primary-hover);
+}
+
+/* ==================== MODALS ==================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: var(--color-bg-light);
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: var(--color-text);
+}
+
+.modal-content h2 {
+    margin-bottom: 10px;
+}
+
+.modal-printer-name {
+    font-size: 1.1rem;
+    color: var(--color-primary);
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    background: var(--color-bg-lighter);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text);
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel {
+    background: var(--color-bg-lighter);
+    color: var(--color-text);
+}
+
+.btn-cancel:hover {
+    background: var(--color-border);
+}
+
+.btn-submit {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-submit:hover {
+    background: var(--color-primary-hover);
+}
+
+.btn-danger {
+    background: var(--color-down);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+/* ==================== UTILITY ==================== */
+.loading,
+.error {
+    text-align: center;
+    padding: 40px;
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+}
+
+.error {
+    color: var(--color-down);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1200px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .audit-section {
+        max-height: 600px;
+    }
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .printers-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 20px;
+    }
+}
+
+/* ==================== ADMIN PAGE ==================== */
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background: var(--color-bg-lighter);
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.back-link:hover {
+    background: var(--color-border);
+}
+
+.admin-section {
+    background: var(--color-bg-light);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 25px;
+}
+
+.admin-section h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.printers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.printer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--color-bg-lighter);
+    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.printer-item-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.printer-item-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.printer-item-order {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.add-printer-form {
+    display: grid;
+    gap: 15px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .printer-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
