@@ -39,9 +39,9 @@ function createPrinterItem(id, printer) {
     item.className = 'printer-item';
     
     const statusText = {
-        'up': '✓ UP',
-        'maintenance': '⚠ Maintenance',
-        'down': '✗ Down'
+        'up': 'UP',
+        'maintenance': 'Maintenance',
+        'down': 'Down'
     };
     
     item.innerHTML = `
@@ -52,7 +52,7 @@ function createPrinterItem(id, printer) {
                 ${statusText[printer.status] || 'Unknown'}
             </div>
         </div>
-        <button class="btn btn-danger" onclick="openDeleteModal('${id}', '${printer.name.replace(/'/g, "\\'")}')">
+        <button class="btn btn-danger" onclick="openDeleteModal('${id}', \`${printer.name}\`)">
             Delete
         </button>
     `;
@@ -95,7 +95,8 @@ async function handleAddPrinter(e) {
             order: printerOrder,
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
             lastUpdatedBy: 'Admin',
-            notes: 'Newly added printer'
+            notes: 'Newly added printer',
+            todos: []
         });
         
         // Add initial audit log entry
@@ -167,7 +168,7 @@ async function handleDeletePrinter() {
 // ==================== CLEAR AUDIT LOG ====================
 async function handleClearAuditLog() {
     const confirmed = confirm(
-        '⚠️ WARNING: This will permanently delete ALL audit log entries.\n\n' +
+        'WARNING: This will permanently delete ALL audit log entries.\n\n' +
         'This action cannot be undone.\n\n' +
         'Are you absolutely sure you want to continue?'
     );
@@ -248,4 +249,3 @@ function setupEventListeners() {
         }
     };
 }
-
