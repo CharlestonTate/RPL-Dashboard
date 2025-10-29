@@ -1,6 +1,7 @@
 // ==================== STATE ====================
 let currentPrinterId = null;
 let currentEditLogId = null;
+let currentTodoPrinterId = null;
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', async () => {
@@ -27,7 +28,8 @@ async function initializeDatabase() {
                     order: printer.order,
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
                     lastUpdatedBy: 'System',
-                    notes: 'Initialized'
+                    notes: 'Initialized',
+                    todos: []
                 });
             });
             
@@ -68,21 +70,47 @@ function loadPrinters() {
 function createPrinterCard(id, printer) {
     const card = document.createElement('div');
     card.className = `printer-card status-${printer.status}`;
-    card.onclick = () => openStatusModal(id, printer.name);
     
     const statusText = {
-        'up': '✓ UP',
-        'maintenance': '⚠ Maintenance',
-        'down': '✗ Down'
+        'up': 'UP',
+        'maintenance': 'Maintenance',
+        'down': 'Down'
     };
+    
+    // Calculate todo progress
+    const todos = printer.todos || [];
+    const completedTodos = todos.filter(t => t.completed).length;
+    const totalTodos = todos.length;
+    const todosText = totalTodos > 0 ? `${completedTodos}/${totalTodos} tasks` : 'No tasks';
     
     card.innerHTML = `
         <div class="printer-name">${printer.name}</div>
         <div class="printer-status">${statusText[printer.status] || 'Unknown'}</div>
         <div class="printer-info">
-            <small>Updated by: ${printer.lastUpdatedBy || 'N/A'}</small>
+            <small>Last update by: ${printer.lastUpdatedBy || 'N/A'}</small>
+        </div>
+        <div class="printer-todos">
+            <div class="printer-todos-header">
+                <span>Tasks:</span>
+                <span class="todos-progress">${todosText}</span>
+            </div>
         </div>
     `;
+    
+    // Add click handlers
+    const statusArea = card.querySelector('.printer-status');
+    statusArea.style.cursor = 'pointer';
+    statusArea.onclick = (e) => {
+        e.stopPropagation();
+        openStatusModal(id, printer.name);
+    };
+    
+    const todosArea = card.querySelector('.printer-todos');
+    todosArea.style.cursor = 'pointer';
+    todosArea.onclick = (e) => {
+        e.stopPropagation();
+        openTodoModal(id, printer.name);
+    };
     
     return card;
 }
@@ -121,12 +149,6 @@ function createLogEntry(id, log) {
     const timestamp = log.timestamp?.toDate() || new Date();
     const timeString = timestamp.toLocaleString();
     
-    const statusEmoji = {
-        'up': '✓',
-        'maintenance': '⚠',
-        'down': '✗'
-    };
-    
     const statusText = {
         'up': 'UP',
         'maintenance': 'Maintenance',
@@ -137,13 +159,13 @@ function createLogEntry(id, log) {
         <div class="log-header">
             <div class="log-printer">
                 <span class="status-badge status-${log.status}">
-                    ${statusEmoji[log.status]} ${statusText[log.status]}
+                    ${statusText[log.status]}
                 </span>
                 <strong>${log.printerName}</strong>
             </div>
             <div class="log-time">${timeString}</div>
         </div>
-        <div class="log-user">Updated by: <strong>${log.updatedBy}</strong></div>
+        <div class="log-user">Last update by: <strong>${log.updatedBy}</strong></div>
         <div class="log-notes collapsed" id="notes-${id}">
             <div class="notes-preview">${log.notes}</div>
         </div>
@@ -151,7 +173,7 @@ function createLogEntry(id, log) {
             <button class="btn-text" onclick="toggleNotes('${id}')">
                 <span id="toggle-text-${id}">Show Full Notes</span>
             </button>
-            <button class="btn-text" onclick="editNotes('${id}', '${log.notes.replace(/'/g, "\\'")}')">Edit Notes</button>
+            <button class="btn-text" onclick="editNotes('${id}', \`${log.notes.replace(/`/g, '\\`')}\`)">Edit Notes</button>
         </div>
     `;
     
@@ -180,6 +202,162 @@ function editNotes(logId, currentNotes) {
     
     editNotesTextarea.value = currentNotes;
     editModal.style.display = 'block';
+}
+
+// ==================== TODO LIST MANAGEMENT ====================
+function openTodoModal(printerId, printerName) {
+    currentTodoPrinterId = printerId;
+    const modal = document.getElementById('todo-modal');
+    const modalPrinterName = document.getElementById('modal-todo-printer-name');
+    
+    modalPrinterName.textContent = `${printerName} - Tasks`;
+    modal.style.display = 'block';
+    
+    loadTodos(printerId);
+}
+
+function closeTodoModal() {
+    const modal = document.getElementById('todo-modal');
+    modal.style.display = 'none';
+    currentTodoPrinterId = null;
+    document.getElementById('new-todo-input').value = '';
+}
+
+async function loadTodos(printerId) {
+    const todosList = document.getElementById('todos-list');
+    
+    try {
+        const printerDoc = await db.collection('printers').doc(printerId).get();
+        const todos = printerDoc.data().todos || [];
+        
+        if (todos.length === 0) {
+            todosList.innerHTML = '<div style="text-align: center; color: var(--color-text-muted); padding: 20px;">No tasks yet. Add one below!</div>';
+            return;
+        }
+        
+        todosList.innerHTML = '';
+        todos.forEach((todo, index) => {
+            const todoItem = createTodoItem(todo, index, printerId);
+            todosList.appendChild(todoItem);
+        });
+    } catch (error) {
+        console.error('Error loading todos:', error);
+        todosList.innerHTML = '<div class="error">Error loading tasks.</div>';
+    }
+}
+
+function createTodoItem(todo, index, printerId) {
+    const item = document.createElement('div');
+    item.className = 'todo-item';
+    
+    item.innerHTML = `
+        <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodo(${index}, '${printerId}')">
+        <div class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</div>
+        <button class="btn-delete-todo" onclick="deleteTodo(${index}, '${printerId}')" title="Delete task">×</button>
+    `;
+    
+    return item;
+}
+
+async function toggleTodo(index, printerId) {
+    try {
+        const printerRef = db.collection('printers').doc(printerId);
+        const printerDoc = await printerRef.get();
+        const todos = printerDoc.data().todos || [];
+        
+        todos[index].completed = !todos[index].completed;
+        
+        await printerRef.update({ todos: todos });
+        
+        // Check if all todos are completed
+        const allCompleted = todos.length > 0 && todos.every(t => t.completed);
+        if (allCompleted) {
+            triggerConfetti();
+        }
+        
+        loadTodos(printerId);
+    } catch (error) {
+        console.error('Error toggling todo:', error);
+        alert('Error updating task. Please try again.');
+    }
+}
+
+async function deleteTodo(index, printerId) {
+    if (!confirm('Delete this task?')) return;
+    
+    try {
+        const printerRef = db.collection('printers').doc(printerId);
+        const printerDoc = await printerRef.get();
+        const todos = printerDoc.data().todos || [];
+        
+        todos.splice(index, 1);
+        
+        await printerRef.update({ todos: todos });
+        loadTodos(printerId);
+    } catch (error) {
+        console.error('Error deleting todo:', error);
+        alert('Error deleting task. Please try again.');
+    }
+}
+
+async function addTodo() {
+    const input = document.getElementById('new-todo-input');
+    const todoText = input.value.trim();
+    
+    if (!todoText) {
+        alert('Please enter a task.');
+        return;
+    }
+    
+    try {
+        const printerRef = db.collection('printers').doc(currentTodoPrinterId);
+        const printerDoc = await printerRef.get();
+        const todos = printerDoc.data().todos || [];
+        
+        todos.push({
+            text: todoText,
+            completed: false,
+            createdAt: new Date().toISOString()
+        });
+        
+        await printerRef.update({ todos: todos });
+        
+        input.value = '';
+        loadTodos(currentTodoPrinterId);
+    } catch (error) {
+        console.error('Error adding todo:', error);
+        alert('Error adding task. Please try again.');
+    }
+}
+
+function triggerConfetti() {
+    // Confetti animation
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2000 };
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        
+        confetti(Object.assign({}, defaults, {
+            particleCount,
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        }));
+        confetti(Object.assign({}, defaults, {
+            particleCount,
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        }));
+    }, 250);
 }
 
 // ==================== MODALS ====================
@@ -237,6 +415,24 @@ function setupEventListeners() {
         await handleNotesEdit();
     };
     
+    // Todo modal
+    const todoModal = document.getElementById('todo-modal');
+    const todoCloseBtn = todoModal.querySelector('.todo-close');
+    const todoCloseBtnBottom = document.getElementById('todo-close-btn');
+    const addTodoBtn = document.getElementById('add-todo-btn');
+    const newTodoInput = document.getElementById('new-todo-input');
+    
+    todoCloseBtn.onclick = closeTodoModal;
+    todoCloseBtnBottom.onclick = closeTodoModal;
+    addTodoBtn.onclick = addTodo;
+    
+    newTodoInput.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTodo();
+        }
+    };
+    
     // Close modals on outside click
     window.onclick = (event) => {
         if (event.target === statusModal) {
@@ -244,6 +440,9 @@ function setupEventListeners() {
         }
         if (event.target === editModal) {
             closeEditModal();
+        }
+        if (event.target === todoModal) {
+            closeTodoModal();
         }
     };
 }
