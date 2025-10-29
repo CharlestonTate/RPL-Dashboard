@@ -243,18 +243,6 @@ For production use:
 - Check Firebase Console for service status
 - Verify all instances use same Firebase project
 
-## Future Enhancements
-
-Ideas for extending this dashboard:
-
-- 📊 Usage statistics and analytics
-- 🔔 Push notifications for status changes
-- 📧 Email alerts for "Down" status
-- 👥 User authentication and roles
-- 📅 Maintenance scheduling
-- 📈 Uptime tracking and reporting
-- 🔗 Integration with printer APIs
-- 📱 Native mobile app
 
 ## Support
 
@@ -263,14 +251,5 @@ For issues or questions:
 2. Verify Firebase configuration
 3. Review Firestore security rules
 4. Check Firebase Console for quota limits
-
-## License
-
-Free to use and modify for your organization.
-
----
-
-Built with ❤️ for 3D printing labs everywhere
-
 
 
