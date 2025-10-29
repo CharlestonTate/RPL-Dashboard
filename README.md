@@ -2,17 +2,6 @@
 
 A real-time, scalable dashboard for managing 3D printer status in your lab, built with Firebase and HTML5.
 
-## Features
-
-✅ **Real-Time Status Updates** - All changes sync instantly across all connected devices
-✅ **Color-Coded Status System** - UP (Green), Maintenance (Yellow), Down (Red)
-✅ **Complete Audit Log** - Track every status change with timestamps, user names, and notes
-✅ **Expandable Notes** - View brief summaries or expand for full details
-✅ **Edit Historical Notes** - Update notes on past status changes
-✅ **Easy Admin Panel** - Add/remove printers without touching code
-✅ **Fully Responsive** - Works on desktop, tablet, and mobile devices
-✅ **Beautiful Dark UI** - Modern, professional interface
-
 ## Quick Start
 
 ### 1. Firebase Setup (Already Done!)
@@ -282,5 +271,6 @@ Free to use and modify for your organization.
 ---
 
 Built with ❤️ for 3D printing labs everywhere
+
 
 
