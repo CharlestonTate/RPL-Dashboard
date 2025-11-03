@@ -466,6 +466,118 @@ header h1 {
     color: var(--color-down);
 }
 
+/* ==================== MAINTENANCE TASKS ==================== */
+#maintenance-banner {
+    background: var(--color-bg-light);
+    padding: 20px 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+#maintenance-banner h3 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.maintenance-tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.maintenance-task-card {
+    background: var(--color-bg-lighter);
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--color-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.maintenance-task-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.maintenance-task-card.status-overdue {
+    border-left-color: var(--color-down);
+    background: linear-gradient(to right, rgba(239, 68, 68, 0.15), var(--color-bg-lighter));
+}
+
+.maintenance-task-card.status-due-soon {
+    border-left-color: var(--color-maintenance);
+    background: linear-gradient(to right, rgba(245, 158, 11, 0.15), var(--color-bg-lighter));
+}
+
+.maintenance-task-card.status-ok {
+    border-left-color: var(--color-up);
+}
+
+.maintenance-task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.maintenance-task-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+    flex: 1;
+}
+
+.maintenance-status-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.maintenance-status-badge.status-overdue {
+    background: var(--color-down);
+    color: white;
+}
+
+.maintenance-status-badge.status-due-soon {
+    background: var(--color-maintenance);
+    color: white;
+}
+
+.maintenance-status-badge.status-ok {
+    background: var(--color-up);
+    color: white;
+}
+
+.maintenance-task-description {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.maintenance-task-printers {
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.maintenance-task-info {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: 6px;
+}
+
+.maintenance-task-last {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
 /* ==================== TODO LISTS ==================== */
 .printer-todos {
     margin-top: 12px;
@@ -628,6 +740,30 @@ header h1 {
         width: 100%;
         text-align: center;
         padding: 12px 20px;
+    }
+    
+    #maintenance-banner {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    #maintenance-banner h3 {
+        font-size: 1.2rem;
+    }
+    
+    .maintenance-tasks-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .maintenance-task-card {
+        padding: 14px;
+    }
+    
+    .maintenance-task-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
     
     .main-content {
