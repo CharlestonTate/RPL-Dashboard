@@ -22,6 +22,63 @@
             </div>
         </div>
 
+        <!-- Maintenance Tasks -->
+        <div class="admin-section">
+            <h2>Recurring Maintenance Tasks</h2>
+            <div id="maintenance-tasks-list" class="printers-list">
+                <div class="loading">Loading maintenance tasks...</div>
+            </div>
+        </div>
+
+        <!-- Add New Maintenance Task -->
+        <div class="admin-section">
+            <h2>Add New Maintenance Task</h2>
+            <form id="add-maintenance-form" class="add-printer-form">
+                <div class="form-group">
+                    <label for="task-name">Task Name *</label>
+                    <input 
+                        type="text" 
+                        id="task-name" 
+                        required 
+                        placeholder="e.g., Check pump, Check fuel"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="task-description">Description (optional)</label>
+                    <textarea 
+                        id="task-description" 
+                        rows="2"
+                        placeholder="What needs to be checked or done..."
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="task-interval">Check Every (days) *</label>
+                    <input 
+                        type="number" 
+                        id="task-interval" 
+                        required 
+                        min="1"
+                        placeholder="e.g., 10"
+                    >
+                    <small style="color: var(--color-text-muted);">Days between checks</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Assign to Printers *</label>
+                    <div id="printer-checkboxes" style="display: grid; gap: 10px; margin-top: 10px;">
+                        <div class="loading">Loading printers...</div>
+                    </div>
+                    <small style="color: var(--color-text-muted);">Select which printers need this check</small>
+                </div>
+
+                <div class="modal-buttons" style="justify-content: flex-start;">
+                    <button type="submit" class="btn btn-submit">Add Maintenance Task</button>
+                </div>
+            </form>
+        </div>
+
         <!-- Add New Printer -->
         <div class="admin-section">
             <h2>Add New Printer</h2>
@@ -79,7 +136,7 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- Delete Printer Modal -->
     <div id="delete-modal" class="modal">
         <div class="modal-content">
             <span class="close delete-close">&times;</span>
@@ -91,6 +148,22 @@
             <div class="modal-buttons">
                 <button type="button" class="btn btn-cancel" id="delete-cancel-btn">Cancel</button>
                 <button type="button" class="btn btn-danger" id="delete-confirm-btn">Delete Printer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Maintenance Task Modal -->
+    <div id="delete-task-modal" class="modal">
+        <div class="modal-content">
+            <span class="close delete-task-close">&times;</span>
+            <h2>Delete Maintenance Task</h2>
+            <p style="margin: 20px 0; color: var(--color-text-muted);">
+                Are you sure you want to delete <strong id="delete-task-name"></strong>?
+                This will also delete all completion history for this task.
+            </p>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-cancel" id="delete-task-cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="delete-task-confirm-btn">Delete Task</button>
             </div>
         </div>
     </div>
