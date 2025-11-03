@@ -14,6 +14,14 @@
             <a href="admin.html" class="admin-link">Admin</a>
         </header>
 
+        <!-- Maintenance Tasks Banner -->
+        <div id="maintenance-banner" style="display: none;">
+            <h3>Maintenance Tasks</h3>
+            <div id="maintenance-tasks-grid" class="maintenance-tasks-grid">
+                <!-- Maintenance tasks will be dynamically loaded here -->
+            </div>
+        </div>
+
         <!-- Main Content -->
         <div class="main-content">
             <!-- Printers Section -->
@@ -87,6 +95,32 @@
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-cancel" id="edit-cancel-btn">Cancel</button>
                     <button type="submit" class="btn btn-submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Maintenance Task Completion Modal -->
+    <div id="maintenance-modal" class="modal">
+        <div class="modal-content">
+            <span class="close maintenance-close">&times;</span>
+            <h2>Complete Maintenance Task</h2>
+            <div id="modal-maintenance-task-name" class="modal-printer-name"></div>
+            
+            <form id="maintenance-form">
+                <div class="form-group">
+                    <label for="completed-by-name">Your Name *</label>
+                    <input type="text" id="completed-by-name" required placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="completion-notes">Notes (optional)</label>
+                    <textarea id="completion-notes" rows="3" placeholder="Any observations or issues found..."></textarea>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-cancel" id="maintenance-cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-submit">Mark as Completed</button>
                 </div>
             </form>
         </div>
