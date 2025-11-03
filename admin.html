@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
     <div class="admin-container">
         <!-- Header -->
         <header>
@@ -164,6 +167,76 @@
             <div class="modal-buttons">
                 <button type="button" class="btn btn-cancel" id="delete-task-cancel-btn">Cancel</button>
                 <button type="button" class="btn btn-danger" id="delete-task-confirm-btn">Delete Task</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Maintenance Task Modal -->
+    <div id="edit-task-modal" class="modal">
+        <div class="modal-content">
+            <span class="close edit-task-close">&times;</span>
+            <h2>Edit Maintenance Task</h2>
+            
+            <form id="edit-task-form" class="add-printer-form">
+                <div class="form-group">
+                    <label for="edit-task-name">Task Name *</label>
+                    <input 
+                        type="text" 
+                        id="edit-task-name" 
+                        required 
+                        placeholder="e.g., Check pump, Check fuel"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-task-description">Description (optional)</label>
+                    <textarea 
+                        id="edit-task-description" 
+                        rows="2"
+                        placeholder="What needs to be checked or done..."
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-task-interval">Check Every (days) *</label>
+                    <input 
+                        type="number" 
+                        id="edit-task-interval" 
+                        required 
+                        min="1"
+                        placeholder="e.g., 10"
+                    >
+                    <small style="color: var(--color-text-muted);">Days between checks</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Assign to Printers *</label>
+                    <div id="edit-printer-checkboxes" style="display: grid; gap: 10px; margin-top: 10px;">
+                        <div class="loading">Loading printers...</div>
+                    </div>
+                    <small style="color: var(--color-text-muted);">Select which printers need this check</small>
+                </div>
+
+                <div style="background: var(--color-bg-lighter); padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                    <small style="color: var(--color-maintenance);">Note: Editing this task will reset the timer for all assigned printers.</small>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-cancel" id="edit-task-cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="margin-bottom: 15px;">Confirm Action</h2>
+            <p id="confirm-message" style="margin-bottom: 25px; color: var(--color-text-muted); line-height: 1.6; white-space: pre-wrap;"></p>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-cancel" id="confirm-cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-submit" id="confirm-ok-btn">OK</button>
             </div>
         </div>
     </div>
