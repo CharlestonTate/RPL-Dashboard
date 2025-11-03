@@ -3,6 +3,7 @@ let currentDeletePrinterId = null;
 let currentDeletePrinterName = null;
 let currentDeleteTaskId = null;
 let currentDeleteTaskName = null;
+let currentEditTaskId = null;
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -73,13 +74,13 @@ async function handleAddPrinter(e) {
     const printerOrder = parseInt(document.getElementById('printer-order').value);
     
     if (!printerId || !printerName || !printerOrder) {
-        alert('Please fill in all required fields.');
+        showToast('Please fill in all required fields.', 'warning');
         return;
     }
     
     // Validate printer ID format
     if (!/^[a-z0-9\-]+$/.test(printerId)) {
-        alert('Printer ID can only contain lowercase letters, numbers, and hyphens.');
+        showToast('Printer ID can only contain lowercase letters, numbers, and hyphens.', 'warning');
         return;
     }
     
@@ -88,7 +89,7 @@ async function handleAddPrinter(e) {
         const existingPrinter = await db.collection('printers').doc(printerId).get();
         
         if (existingPrinter.exists) {
-            alert('A printer with this ID already exists. Please use a different ID.');
+            showToast('A printer with this ID already exists. Please use a different ID.', 'warning');
             return;
         }
         
@@ -99,8 +100,7 @@ async function handleAddPrinter(e) {
             order: printerOrder,
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
             lastUpdatedBy: 'Admin',
-            notes: 'Newly added printer',
-            todos: []
+            notes: 'Newly added printer'
         });
         
         // Add initial audit log entry
@@ -116,11 +116,11 @@ async function handleAddPrinter(e) {
         // Clear form
         document.getElementById('add-printer-form').reset();
         
-        alert(`Printer "${printerName}" added successfully!`);
+        showToast(`Printer "${printerName}" added successfully!`, 'success');
         
     } catch (error) {
         console.error('Error adding printer:', error);
-        alert('Error adding printer. Please try again.');
+        showToast('Error adding printer. Please try again.', 'error');
     }
 }
 
@@ -161,17 +161,17 @@ async function handleDeletePrinter() {
         });
         
         closeDeleteModal();
-        alert(`Printer "${currentDeletePrinterName}" deleted successfully!`);
+        showToast(`Printer "${currentDeletePrinterName}" deleted successfully!`, 'success');
         
     } catch (error) {
         console.error('Error deleting printer:', error);
-        alert('Error deleting printer. Please try again.');
+        showToast('Error deleting printer. Please try again.', 'error');
     }
 }
 
 // ==================== CLEAR AUDIT LOG ====================
 async function handleClearAuditLog() {
-    const confirmed = confirm(
+    const confirmed = await customConfirm(
         'WARNING: This will permanently delete ALL audit log entries.\n\n' +
         'This action cannot be undone.\n\n' +
         'Are you absolutely sure you want to continue?'
@@ -179,7 +179,7 @@ async function handleClearAuditLog() {
     
     if (!confirmed) return;
     
-    const doubleConfirm = confirm(
+    const doubleConfirm = await customConfirm(
         'Last chance! Click OK to permanently delete all audit logs.'
     );
     
@@ -190,7 +190,7 @@ async function handleClearAuditLog() {
         const snapshot = await db.collection('auditLog').get();
         
         if (snapshot.empty) {
-            alert('No audit logs to clear.');
+            showToast('No audit logs to clear.', 'info');
             return;
         }
         
@@ -218,11 +218,11 @@ async function handleClearAuditLog() {
             totalDeleted += operationCount;
         }
         
-        alert(`Successfully deleted ${totalDeleted} audit log entries.`);
+        showToast(`Successfully deleted ${totalDeleted} audit log entries.`, 'success');
         
     } catch (error) {
         console.error('Error clearing audit log:', error);
-        alert('Error clearing audit log. Please try again.');
+        showToast('Error clearing audit log. Please try again.', 'error');
     }
 }
 
@@ -275,9 +275,14 @@ function createMaintenanceTaskItem(id, task) {
                 ${lastCheckText}
             </div>
         </div>
-        <button class="btn btn-danger" onclick="openDeleteTaskModal('${id}', \`${task.name}\`)">
-            Delete
-        </button>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-submit" onclick="openEditTaskModal('${id}')">
+                Edit
+            </button>
+            <button class="btn btn-danger" onclick="openDeleteTaskModal('${id}', \`${task.name}\`)">
+                Delete
+            </button>
+        </div>
     `;
     
     return item;
@@ -342,17 +347,17 @@ async function handleAddMaintenanceTask(e) {
     });
     
     if (!taskName || !intervalDays) {
-        alert('Please fill in all required fields.');
+        showToast('Please fill in all required fields.', 'warning');
         return;
     }
     
     if (assignedPrinters.length === 0) {
-        alert('Please select at least one printer.');
+        showToast('Please select at least one printer.', 'warning');
         return;
     }
     
     if (intervalDays < 1) {
-        alert('Interval must be at least 1 day.');
+        showToast('Interval must be at least 1 day.', 'warning');
         return;
     }
     
@@ -372,11 +377,11 @@ async function handleAddMaintenanceTask(e) {
         // Clear form
         document.getElementById('add-maintenance-form').reset();
         
-        alert(`Maintenance task "${taskName}" added successfully!`);
+        showToast(`Maintenance task "${taskName}" added successfully!`, 'success');
         
     } catch (error) {
         console.error('Error adding maintenance task:', error);
-        alert('Error adding maintenance task. Please try again.');
+        showToast('Error adding maintenance task. Please try again.', 'error');
     }
 }
 
@@ -419,11 +424,138 @@ async function handleDeleteTask() {
         }
         
         closeDeleteTaskModal();
-        alert(`Maintenance task "${currentDeleteTaskName}" deleted successfully!`);
+        showToast(`Maintenance task "${currentDeleteTaskName}" deleted successfully!`, 'success');
         
     } catch (error) {
         console.error('Error deleting maintenance task:', error);
-        alert('Error deleting maintenance task. Please try again.');
+        showToast('Error deleting maintenance task. Please try again.', 'error');
+    }
+}
+
+// ==================== EDIT MAINTENANCE TASK ====================
+async function openEditTaskModal(taskId) {
+    currentEditTaskId = taskId;
+    const modal = document.getElementById('edit-task-modal');
+    
+    try {
+        // Load task data
+        const taskDoc = await db.collection('maintenanceTasks').doc(taskId).get();
+        const task = taskDoc.data();
+        
+        // Populate form
+        document.getElementById('edit-task-name').value = task.name || '';
+        document.getElementById('edit-task-description').value = task.description || '';
+        document.getElementById('edit-task-interval').value = task.intervalDays || '';
+        
+        // Load and check appropriate printers
+        await loadPrintersForEditCheckboxes(task.assignedPrinters || []);
+        
+        modal.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading task for edit:', error);
+        showToast('Error loading task. Please try again.', 'error');
+    }
+}
+
+function closeEditTaskModal() {
+    const modal = document.getElementById('edit-task-modal');
+    modal.style.display = 'none';
+    currentEditTaskId = null;
+}
+
+async function loadPrintersForEditCheckboxes(selectedPrinters) {
+    const checkboxesContainer = document.getElementById('edit-printer-checkboxes');
+    
+    try {
+        const snapshot = await db.collection('printers').orderBy('order').get();
+        
+        if (snapshot.empty) {
+            checkboxesContainer.innerHTML = '<div style="color: var(--color-text-muted);">No printers available.</div>';
+            return;
+        }
+        
+        checkboxesContainer.innerHTML = '';
+        
+        snapshot.forEach((doc) => {
+            const printer = doc.data();
+            const isChecked = selectedPrinters.includes(doc.id);
+            const checkbox = document.createElement('label');
+            checkbox.style.display = 'flex';
+            checkbox.style.alignItems = 'center';
+            checkbox.style.gap = '8px';
+            checkbox.style.cursor = 'pointer';
+            checkbox.style.padding = '8px';
+            checkbox.style.background = 'var(--color-bg-lighter)';
+            checkbox.style.borderRadius = '6px';
+            checkbox.style.transition = 'background 0.2s';
+            
+            checkbox.innerHTML = `
+                <input type="checkbox" value="${doc.id}" data-name="${printer.name}" 
+                       style="width: 18px; height: 18px; cursor: pointer;" ${isChecked ? 'checked' : ''}>
+                <span>${printer.name}</span>
+            `;
+            
+            checkbox.onmouseover = () => checkbox.style.background = 'var(--color-border)';
+            checkbox.onmouseout = () => checkbox.style.background = 'var(--color-bg-lighter)';
+            
+            checkboxesContainer.appendChild(checkbox);
+        });
+    } catch (error) {
+        console.error('Error loading printers for edit checkboxes:', error);
+        checkboxesContainer.innerHTML = '<div class="error">Error loading printers.</div>';
+    }
+}
+
+async function handleEditTask(e) {
+    e.preventDefault();
+    
+    const taskName = document.getElementById('edit-task-name').value.trim();
+    const taskDescription = document.getElementById('edit-task-description').value.trim();
+    const intervalDays = parseInt(document.getElementById('edit-task-interval').value);
+    
+    // Get selected printers
+    const checkboxes = document.querySelectorAll('#edit-printer-checkboxes input[type="checkbox"]:checked');
+    const assignedPrinters = [];
+    const assignedPrinterNames = [];
+    
+    checkboxes.forEach(cb => {
+        assignedPrinters.push(cb.value);
+        assignedPrinterNames.push(cb.getAttribute('data-name'));
+    });
+    
+    if (!taskName || !intervalDays) {
+        showToast('Please fill in all required fields.', 'warning');
+        return;
+    }
+    
+    if (assignedPrinters.length === 0) {
+        showToast('Please select at least one printer.', 'warning');
+        return;
+    }
+    
+    if (intervalDays < 1) {
+        showToast('Interval must be at least 1 day.', 'warning');
+        return;
+    }
+    
+    try {
+        // Update maintenance task and RESET the timer
+        await db.collection('maintenanceTasks').doc(currentEditTaskId).update({
+            name: taskName,
+            description: taskDescription,
+            intervalDays: intervalDays,
+            assignedPrinters: assignedPrinters,
+            assignedPrinterNames: assignedPrinterNames,
+            lastCompleted: null,  // RESET THE TIMER
+            lastCompletedBy: null
+        });
+        
+        closeEditTaskModal();
+        showToast(`Maintenance task "${taskName}" updated successfully! Timer has been reset.`, 'success');
+        
+    } catch (error) {
+        console.error('Error updating maintenance task:', error);
+        showToast('Error updating maintenance task. Please try again.', 'error');
     }
 }
 
@@ -457,6 +589,16 @@ function setupEventListeners() {
     deleteTaskCancelBtn.onclick = closeDeleteTaskModal;
     deleteTaskConfirmBtn.onclick = handleDeleteTask;
     
+    // Edit task modal
+    const editTaskModal = document.getElementById('edit-task-modal');
+    const editTaskCloseBtn = editTaskModal.querySelector('.edit-task-close');
+    const editTaskCancelBtn = document.getElementById('edit-task-cancel-btn');
+    const editTaskForm = document.getElementById('edit-task-form');
+    
+    editTaskCloseBtn.onclick = closeEditTaskModal;
+    editTaskCancelBtn.onclick = closeEditTaskModal;
+    editTaskForm.onsubmit = handleEditTask;
+    
     // Clear audit log button
     const clearAuditLogBtn = document.getElementById('clear-audit-log-btn');
     clearAuditLogBtn.onclick = handleClearAuditLog;
@@ -468,6 +610,9 @@ function setupEventListeners() {
         }
         if (event.target === deleteTaskModal) {
             closeDeleteTaskModal();
+        }
+        if (event.target === editTaskModal) {
+            closeEditTaskModal();
         }
     };
 }
