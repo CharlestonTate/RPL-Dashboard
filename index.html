@@ -7,20 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
     <div class="container">
         <!-- Header -->
         <header>
             <h1>3D Printer Lab Dashboard</h1>
             <a href="admin.html" class="admin-link">Admin</a>
         </header>
-
-        <!-- Maintenance Tasks Banner -->
-        <div id="maintenance-banner" style="display: none;">
-            <h3>Maintenance Tasks</h3>
-            <div id="maintenance-tasks-grid" class="maintenance-tasks-grid">
-                <!-- Maintenance tasks will be dynamically loaded here -->
-            </div>
-        </div>
 
         <!-- Main Content -->
         <div class="main-content">
@@ -100,50 +95,14 @@
         </div>
     </div>
 
-    <!-- Maintenance Task Completion Modal -->
-    <div id="maintenance-modal" class="modal">
-        <div class="modal-content">
-            <span class="close maintenance-close">&times;</span>
-            <h2>Complete Maintenance Task</h2>
-            <div id="modal-maintenance-task-name" class="modal-printer-name"></div>
-            
-            <form id="maintenance-form">
-                <div class="form-group">
-                    <label for="completed-by-name">Your Name *</label>
-                    <input type="text" id="completed-by-name" required placeholder="Enter your name">
-                </div>
-
-                <div class="form-group">
-                    <label for="completion-notes">Notes (optional)</label>
-                    <textarea id="completion-notes" rows="3" placeholder="Any observations or issues found..."></textarea>
-                </div>
-
-                <div class="modal-buttons">
-                    <button type="button" class="btn btn-cancel" id="maintenance-cancel-btn">Cancel</button>
-                    <button type="submit" class="btn btn-submit">Mark as Completed</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Todo List Modal -->
-    <div id="todo-modal" class="modal">
-        <div class="modal-content">
-            <span class="close todo-close">&times;</span>
-            <h2>Manage Todo List</h2>
-            <div id="modal-todo-printer-name" class="modal-printer-name"></div>
-            
-            <div class="todos-list" id="todos-list">
-                <!-- Todos will be loaded here -->
-            </div>
-            
-            <div class="add-todo-section">
-                <input type="text" class="add-todo-input" id="new-todo-input" placeholder="Add new task...">
-                <button class="btn-add-todo" id="add-todo-btn">Add</button>
-            </div>
-            
+    <!-- Custom Confirm Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="margin-bottom: 15px;">Confirm Action</h2>
+            <p id="confirm-message" style="margin-bottom: 25px; color: var(--color-text-muted); line-height: 1.6; white-space: pre-wrap;"></p>
             <div class="modal-buttons">
-                <button type="button" class="btn btn-cancel" id="todo-close-btn">Close</button>
+                <button type="button" class="btn btn-cancel" id="confirm-cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-submit" id="confirm-ok-btn">Confirm</button>
             </div>
         </div>
     </div>
