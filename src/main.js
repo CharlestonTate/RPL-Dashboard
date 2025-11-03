@@ -2,6 +2,7 @@
 let currentPrinterId = null;
 let currentEditLogId = null;
 let currentTodoPrinterId = null;
+let currentMaintenanceTaskId = null;
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', async () => {
@@ -9,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
     loadPrinters();
     loadAuditLog();
+    loadMaintenanceTasks();
 });
 
 // Initialize database with printers if they don't exist
@@ -202,6 +204,147 @@ function editNotes(logId, currentNotes) {
     
     editNotesTextarea.value = currentNotes;
     editModal.style.display = 'block';
+}
+
+// ==================== MAINTENANCE TASKS ====================
+function loadMaintenanceTasks() {
+    const banner = document.getElementById('maintenance-banner');
+    const tasksGrid = document.getElementById('maintenance-tasks-grid');
+    
+    // Real-time listener for maintenance tasks
+    db.collection('maintenanceTasks')
+        .orderBy('name')
+        .onSnapshot((snapshot) => {
+            if (snapshot.empty) {
+                banner.style.display = 'none';
+                return;
+            }
+            
+            banner.style.display = 'block';
+            tasksGrid.innerHTML = '';
+            
+            snapshot.forEach((doc) => {
+                const task = doc.data();
+                const taskCard = createMaintenanceTaskCard(doc.id, task);
+                tasksGrid.appendChild(taskCard);
+            });
+        }, (error) => {
+            console.error('Error loading maintenance tasks:', error);
+        });
+}
+
+function createMaintenanceTaskCard(id, task) {
+    const card = document.createElement('div');
+    
+    // Calculate days since last check
+    const now = new Date();
+    const lastCompleted = task.lastCompleted?.toDate();
+    const daysSinceCheck = lastCompleted 
+        ? Math.floor((now - lastCompleted) / (1000 * 60 * 60 * 24))
+        : null;
+    
+    const intervalDays = task.intervalDays || 10;
+    const daysUntilDue = lastCompleted 
+        ? intervalDays - daysSinceCheck
+        : null;
+    
+    // Determine status
+    let statusClass = 'ok';
+    let statusText = 'OK';
+    
+    if (!lastCompleted) {
+        statusClass = 'overdue';
+        statusText = 'Never Checked';
+    } else if (daysUntilDue < 0) {
+        statusClass = 'overdue';
+        statusText = `Overdue ${Math.abs(daysUntilDue)}d`;
+    } else if (daysUntilDue <= 2) {
+        statusClass = 'due-soon';
+        statusText = `Due in ${daysUntilDue}d`;
+    } else {
+        statusText = `${daysUntilDue} days left`;
+    }
+    
+    const printerNames = task.assignedPrinterNames || [];
+    const printersText = printerNames.join(', ');
+    
+    const lastCheckText = lastCompleted 
+        ? `Last: ${lastCompleted.toLocaleDateString()} by ${task.lastCompletedBy || 'Unknown'}`
+        : 'Never checked';
+    
+    card.className = `maintenance-task-card status-${statusClass}`;
+    card.onclick = () => openMaintenanceModal(id, task.name);
+    
+    card.innerHTML = `
+        <div class="maintenance-task-header">
+            <div class="maintenance-task-name">${task.name}</div>
+            <div class="maintenance-status-badge status-${statusClass}">${statusText}</div>
+        </div>
+        ${task.description ? `<div class="maintenance-task-description">${task.description}</div>` : ''}
+        <div class="maintenance-task-printers">${printersText}</div>
+        <div class="maintenance-task-info">Every ${intervalDays} days</div>
+        <div class="maintenance-task-last">${lastCheckText}</div>
+    `;
+    
+    return card;
+}
+
+function openMaintenanceModal(taskId, taskName) {
+    currentMaintenanceTaskId = taskId;
+    const modal = document.getElementById('maintenance-modal');
+    const modalTaskName = document.getElementById('modal-maintenance-task-name');
+    
+    modalTaskName.textContent = taskName;
+    modal.style.display = 'block';
+    
+    // Clear form
+    document.getElementById('maintenance-form').reset();
+}
+
+function closeMaintenanceModal() {
+    const modal = document.getElementById('maintenance-modal');
+    modal.style.display = 'none';
+    currentMaintenanceTaskId = null;
+}
+
+async function handleMaintenanceCompletion() {
+    const completedBy = document.getElementById('completed-by-name').value.trim();
+    const notes = document.getElementById('completion-notes').value.trim();
+    
+    if (!completedBy) {
+        alert('Please enter your name.');
+        return;
+    }
+    
+    try {
+        const taskRef = db.collection('maintenanceTasks').doc(currentMaintenanceTaskId);
+        const taskDoc = await taskRef.get();
+        const taskData = taskDoc.data();
+        
+        // Update task with new completion time
+        await taskRef.update({
+            lastCompleted: firebase.firestore.FieldValue.serverTimestamp(),
+            lastCompletedBy: completedBy
+        });
+        
+        // Add to history
+        await db.collection('maintenanceHistory').add({
+            taskId: currentMaintenanceTaskId,
+            taskName: taskData.name,
+            completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            completedBy: completedBy,
+            notes: notes || ''
+        });
+        
+        closeMaintenanceModal();
+        
+        // CONFETTI TIME!
+        triggerConfetti();
+        
+    } catch (error) {
+        console.error('Error completing maintenance task:', error);
+        alert('Error completing task. Please try again.');
+    }
 }
 
 // ==================== TODO LIST MANAGEMENT ====================
@@ -415,6 +558,20 @@ function setupEventListeners() {
         await handleNotesEdit();
     };
     
+    // Maintenance modal
+    const maintenanceModal = document.getElementById('maintenance-modal');
+    const maintenanceCloseBtn = maintenanceModal.querySelector('.maintenance-close');
+    const maintenanceCancelBtn = document.getElementById('maintenance-cancel-btn');
+    const maintenanceForm = document.getElementById('maintenance-form');
+    
+    maintenanceCloseBtn.onclick = closeMaintenanceModal;
+    maintenanceCancelBtn.onclick = closeMaintenanceModal;
+    
+    maintenanceForm.onsubmit = async (e) => {
+        e.preventDefault();
+        await handleMaintenanceCompletion();
+    };
+    
     // Todo modal
     const todoModal = document.getElementById('todo-modal');
     const todoCloseBtn = todoModal.querySelector('.todo-close');
@@ -440,6 +597,9 @@ function setupEventListeners() {
         }
         if (event.target === editModal) {
             closeEditModal();
+        }
+        if (event.target === maintenanceModal) {
+            closeMaintenanceModal();
         }
         if (event.target === todoModal) {
             closeTodoModal();
